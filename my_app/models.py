@@ -2,7 +2,7 @@ from django.db import models
 
 class Usuario(models.Model):
     cpf = models.IntegerField(primary_key=True)
-    email = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, unique=True)
     nome = models.CharField(max_length=255)
     senha = models.CharField(max_length=255)
     nascimento = models.DateTimeField()
@@ -27,6 +27,7 @@ class Turma(models.Model):
     data_fechamento = models.DateTimeField(null=True)
     data_abertura = models.DateTimeField()
     semestre = models.FloatField(help_text='Ex.: 2023.2')
+    vagas = models.IntegerField(default=0)
 
 class Noticia(models.Model):
     id = models.AutoField(primary_key=True)

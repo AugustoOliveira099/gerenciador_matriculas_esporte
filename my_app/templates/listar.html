@@ -1,20 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Lista de Alunos</title>
-    <script>
-        function mostrarAlunos() {
-            document.getElementById('lista-alunos').style.display = 'block';
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagem de usuários</title>
 </head>
 <body>
-    <h1>Lista de Alunos</h1>
-    <button onclick="mostrarAlunos()">Mostrar Alunos</button>
-    <ul id="lista-alunos" style="display: none;">
+    <button onclick="carregarUsuarios()">Atualizar listas</button>
+    <h2>Lista de Alunos</h1>
+    <ul id="lista-alunos">
         {% for aluno in alunos %}
-            <li>{{ aluno }}</li>
+            <li id="{{ aluno.cpf }}"> 
+                <div class="aceitar-atestado">
+                    {{ aluno.nome }}
+                    {% if not aluno.validado_por %}
+                        {% with aluno_cpf=aluno.cpf %}
+                            <button onclick="aceitarAtestado('{{ aluno_cpf }}')" type="button">Aceitar atestado</button>
+                        {% endwith %}
+                    {% endif %}
+                </div>
+                <ul>
+                    <li>CPF: {{ aluno.cpf }}</li>
+                    <li>Data de nascimento: {{ aluno.nascimento }}</li>
+                    <li>Turma: {{ aluno.turma }}</li>
+                    <li>Atestado de aptidão física: {{ aluno.atestado }}</li>
+                    {% if aluno.validado_por %}
+                        <li>Atestado validado por: {{ aluno.validado_por }}</li>
+                    {% endif %}
+                </ul>
+            </li>
         {% endfor %}
     </ul>
+    <h2>Lista de Professores</h1>
+    <ul id="lista-professores">
+        {% for professor in professores %}
+            <li id="{{ professor.cpf }}">{{ professor.nome }} - {{ professor.email }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Lista de Administradores</h2>
+    <ul id="lista-admins">
+        {% for admin in admins %}
+            <li id="{{ admin.cpf }}">{{ admin.nome }} - {{ admin.email }}</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        const listaAlunos = document.getElementById('lista-alunos');
+        const listaProfessores = document.getElementById('lista-professores');
+        const listaAdmins = document.getElementById('lista-admins');
+        const url = "{% url 'adm_inicial' %}";
+
+        function aceitarAtestado(aluno_cpf) {
+            const csrftoken = getCookie('csrftoken');
+            
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ aluno_cpf })
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                console.info(data)
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+        }
+
+        function carregarUsuarios() {
+            fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            }) 
+            .then(resp => resp.json())
+            .then(data => {
+                console.log('Resposta do servidor:', data);
+                
+                listaAlunos.innerHTML = '';
+                data.alunos.forEach(aluno => {
+                    let button = ''
+                    if (!aluno.validado_por) {
+                        button = `<button onclick="aceitarAtestado(${aluno.cpf})" type="button">Aceitar atestado</button>`
+                    }
+                    
+                    listaAlunos.innerHTML += `<li ${aluno.cpf}>
+                                                <div class="aceitar-atestado">
+                                                    ${aluno.nome}
+                                                    ${button}
+                                                </div> 
+                                                <ul>
+                                                    <li>CPF: ${aluno.cpf}</li>
+                                                    <li>Data de nascimento: ${aluno.nascimento}</li>
+                                                    <li>Turma: ${aluno.turma}</li>
+                                                    <li>Atestado de aptidão física: ${aluno.atestado}</li>
+                                                    <li>Atestado validado por: ${aluno.validado_por}</li>
+                                                </ul>
+                                              </li>`;
+                });
+
+                listaProfessores.innerHTML = '';
+                data.professores.forEach(professor => {
+                    listaProfessores.innerHTML += `<li ${professor.cpf}>${professor.nome} - ${professor.email}</li>`;
+                });
+
+                listaAdmins.innerHTML = '';
+                data.admins.forEach(admin => {
+                    listaAdmins.innerHTML += `<li ${admin.cpf}>${admin.nome} - ${admin.email}</li>`;
+                });
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Verifique se o cookie começa com o nome desejado
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </body>
 </html>
