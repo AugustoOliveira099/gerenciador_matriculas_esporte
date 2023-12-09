@@ -1,0 +1,61 @@
+from django.db import models
+
+class Usuario(models.Model):
+    cpf = models.IntegerField(primary_key=True)
+    email = models.CharField(max_length=255)
+    nome = models.CharField(max_length=255)
+    senha = models.CharField(max_length=255)
+    nascimento = models.DateTimeField()
+
+class Aluno(models.Model):
+    user_cpf = models.OneToOneField(Usuario, default=123456789, on_delete=models.CASCADE, primary_key=True)
+    atestado_apt = models.CharField(max_length=255, null=True, help_text='Link para o documento')
+    atestado_apt_validado_por = models.ForeignKey('Administrador', null=True, on_delete=models.SET_NULL)
+    turma_id = models.ForeignKey('Turma', null=True, on_delete=models.SET_NULL)
+
+class Professor(models.Model):
+    user_cpf = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
+
+class Administrador(models.Model):
+    user_cpf = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
+    cadastrado_por = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)
+
+class Turma(models.Model):
+    id = models.AutoField(primary_key=True)
+    esporte = models.CharField(max_length=255)
+    isOpen = models.BooleanField()
+    data_fechamento = models.DateTimeField(null=True)
+    data_abertura = models.DateTimeField()
+    semestre = models.FloatField(help_text='Ex.: 2023.2')
+
+class Noticia(models.Model):
+    id = models.AutoField(primary_key=True)
+    prof = models.ForeignKey(Professor, null=True, on_delete=models.SET_NULL)
+    turma_id = models.ForeignKey(Turma, null=True, on_delete=models.SET_NULL)
+    conteudo = models.TextField()
+    data_publicacao = models.DateTimeField()
+
+class Leciona(models.Model):
+    id = models.AutoField(primary_key=True)
+    prof = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    turma_id = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    data_inicio = models.DateTimeField()
+    data_termino = models.DateTimeField()
+
+class Matricula(models.Model):
+    id = models.AutoField(primary_key=True)
+    aluno_cpf = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    turma_id = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    prof_cpf = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['aluno_cpf', 'turma_id', 'prof_cpf'], name='unique_matricula')
+        ]
+
+class Frequencia(models.Model):
+    matric_id = models.ForeignKey(Matricula, on_delete=models.CASCADE)
+    data = models.DateTimeField()
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['matric_id', 'data'], name='unique_frequencia')
+        ]

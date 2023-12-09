@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Alunos</title>
+    <script>
+        function mostrarAlunos() {
+            document.getElementById('lista-alunos').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <h1>Lista de Alunos</h1>
+    <button onclick="mostrarAlunos()">Mostrar Alunos</button>
+    <ul id="lista-alunos" style="display: none;">
+        {% for aluno in alunos %}
+            <li>{{ aluno }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
