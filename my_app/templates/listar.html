@@ -8,42 +8,108 @@
 </head>
 <body>
     <button onclick="carregarUsuarios()">Atualizar listas</button>
-    <h2>Lista de Alunos</h1>
-    <ul id="lista-alunos">
-        {% for aluno in alunos %}
-            <li id="{{ aluno.cpf }}"> 
-                <div class="aceitar-atestado">
-                    {{ aluno.nome }}
-                    {% if not aluno.validado_por %}
-                        {% with aluno_cpf=aluno.cpf %}
-                            <button onclick="aceitarAtestado('{{ aluno_cpf }}')" type="button">Aceitar atestado</button>
-                        {% endwith %}
-                    {% endif %}
-                </div>
-                <ul>
-                    <li>CPF: {{ aluno.cpf }}</li>
-                    <li>Data de nascimento: {{ aluno.nascimento }}</li>
-                    <li>Turma: {{ aluno.turma }}</li>
-                    <li>Atestado de aptidão física: {{ aluno.atestado }}</li>
-                    {% if aluno.validado_por %}
-                        <li>Atestado validado por: {{ aluno.validado_por }}</li>
-                    {% endif %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
-    <h2>Lista de Professores</h1>
-    <ul id="lista-professores">
-        {% for professor in professores %}
-            <li id="{{ professor.cpf }}">{{ professor.nome }} - {{ professor.email }}</li>
-        {% endfor %}
-    </ul>
-    <h2>Lista de Administradores</h2>
-    <ul id="lista-admins">
-        {% for admin in admins %}
-            <li id="{{ admin.cpf }}">{{ admin.nome }} - {{ admin.email }}</li>
-        {% endfor %}
-    </ul>
+    <h2>Alunos</h1>
+    {% if alunos %}
+        {% if alunos|length > 0 %}
+            <ul id="lista-alunos">
+                {% for aluno in alunos %}
+                    <li id="{{ aluno.cpf }}"> 
+                        <div class="aceitar-atestado">
+                            {{ aluno.nome }}
+                            {% if not aluno.validado_por %}
+                                {% with aluno_cpf=aluno.cpf %}
+                                    <button onclick="aceitarAtestado('{{ aluno_cpf }}')" type="button">Aceitar atestado</button>
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                        <ul>
+                            <li>CPF: {{ aluno.cpf }}</li>
+                            <li>Data de nascimento: {{ aluno.nascimento }}</li>
+                            <li>Turma: {{ aluno.turma }}</li>
+                            <li>Atestado de aptidão física: {{ aluno.atestado }}</li>
+                            {% if aluno.validado_por %}
+                                <li>Atestado validado por: {{ aluno.validado_por }}</li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Não há alunos cadastrados.</p>
+        {% endif %}
+    {% else %}
+            <p>Não foi possível carregar os alunos.</p>
+    {% endif %}
+
+
+    <h2>Professores</h1>
+    {% if professores %}
+        {% if professores|length > 0 %}
+            <ul id="lista-professores">
+                {% for professor in professores %}
+                    <li id="{{ professor.cpf }}">{{ professor.nome }} - {{ professor.email }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Não há professores cadastrados.</p>
+        {% endif %}
+    {% else %}
+            <p>Não foi possível carregar os professores.</p>
+    {% endif %}
+
+
+    <h2>Administradores</h2>
+    {% if admins %}
+        {% if admins|length > 0 %}
+            <ul id="lista-admins">
+                {% for admin in admins %}
+                    <li id="{{ admin.cpf }}">{{ admin.nome }} - {{ admin.email }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Não há administradores cadastrados.</p>
+        {% endif %}
+    {% else %}
+            <p>Não foi possível carregar os administradores.</p>
+    {% endif %}
+
+    
+    <h2>Turmas</h2>
+    {% if turmas %}
+        {% if turmas|length > 0 %}
+            <table style="border: 1px solid black;">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Modalidade</th>
+                        <th>Professor</th>
+                        <th>Horário</th>
+                        <th>Semestre</th>
+                        <th>Vagas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turma in turmas %}
+                        <tr 
+                            id="{{ turma.id }}" 
+                            class= "{% if turma.is_open %}open{% else %}closed{% endif %}"
+                        >
+                            <td>{{ turma.id }}</td>
+                            <td>{{ turma.modalidade }}</td>
+                            <td>{{ turma.professor }}</td>
+                            <td>{{ turma.horario }}</td>
+                            <td>{{ turma.semestre }}</td>
+                            <td>{{ turma.vagas }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Não há turmas cadastradas.</p>
+        {% endif %}
+    {% else %}
+            <p>Não foi possível carregar as turmas.</p>
+    {% endif %}
 
     <script>
         const listaAlunos = document.getElementById('lista-alunos');
@@ -77,43 +143,47 @@
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-            }) 
-            .then(resp => resp.json())
-            .then(data => {
-                console.log('Resposta do servidor:', data);
-                
-                listaAlunos.innerHTML = '';
-                data.alunos.forEach(aluno => {
-                    let button = ''
-                    if (!aluno.validado_por) {
-                        button = `<button onclick="aceitarAtestado(${aluno.cpf})" type="button">Aceitar atestado</button>`
-                    }
-                    
-                    listaAlunos.innerHTML += `<li ${aluno.cpf}>
-                                                <div class="aceitar-atestado">
-                                                    ${aluno.nome}
-                                                    ${button}
-                                                </div> 
-                                                <ul>
-                                                    <li>CPF: ${aluno.cpf}</li>
-                                                    <li>Data de nascimento: ${aluno.nascimento}</li>
-                                                    <li>Turma: ${aluno.turma}</li>
-                                                    <li>Atestado de aptidão física: ${aluno.atestado}</li>
-                                                    <li>Atestado validado por: ${aluno.validado_por}</li>
-                                                </ul>
-                                              </li>`;
-                });
-
-                listaProfessores.innerHTML = '';
-                data.professores.forEach(professor => {
-                    listaProfessores.innerHTML += `<li ${professor.cpf}>${professor.nome} - ${professor.email}</li>`;
-                });
-
-                listaAdmins.innerHTML = '';
-                data.admins.forEach(admin => {
-                    listaAdmins.innerHTML += `<li ${admin.cpf}>${admin.nome} - ${admin.email}</li>`;
-                });
             })
+            .then(() => {
+                location.reload();
+            })
+        //     .then(resp => resp.json())
+        //     .then(data => {
+        //         console.log('Resposta do servidor:', data);
+                
+        //         listaAlunos.innerHTML = '';
+        //         data.alunos.forEach(aluno => {
+        //             let button = ''
+        //             if (!aluno.validado_por) {
+        //                 button = `<button onclick="aceitarAtestado(${aluno.cpf})" type="button">Aceitar atestado</button>`
+        //             }
+                    
+        //             listaAlunos.innerHTML += `<li ${aluno.cpf}>
+        //                                         <div class="aceitar-atestado">
+        //                                             ${aluno.nome}
+        //                                             ${button}
+        //                                         </div> 
+        //                                         <ul>
+        //                                             <li>CPF: ${aluno.cpf}</li>
+        //                                             <li>Data de nascimento: ${aluno.nascimento}</li>
+        //                                             <li>Turma: ${aluno.turma}</li>
+        //                                             <li>Atestado de aptidão física: ${aluno.atestado}</li>
+        //                                             <li>Atestado validado por: ${aluno.validado_por}</li>
+        //                                         </ul>
+        //                                       </li>`;
+        //         });
+
+        //         listaProfessores.innerHTML = '';
+        //         data.professores.forEach(professor => {
+        //             listaProfessores.innerHTML += `<li ${professor.cpf}>${professor.nome} - ${professor.email}</li>`;
+        //         });
+
+        //         listaAdmins.innerHTML = '';
+        //         data.admins.forEach(admin => {
+        //             listaAdmins.innerHTML += `<li ${admin.cpf}>${admin.nome} - ${admin.email}</li>`;
+        //         });
+        //     })
+            
             .catch(error => {
                 console.error('Erro:', error);
             });

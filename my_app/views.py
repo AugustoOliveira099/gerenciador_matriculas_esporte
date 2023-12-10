@@ -2,7 +2,7 @@ import json
 from django.views import View
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Aluno, Professor, Administrador
+from .models import Aluno, Professor, Administrador, Leciona
 
 class Listar(View):
   def verificaValidadoPor(self, aluno):
@@ -16,6 +16,7 @@ class Listar(View):
         alunos = Aluno.objects.select_related('user_cpf').all()
         professores = Professor.objects.select_related('user_cpf').all()
         admins = Administrador.objects.select_related('user_cpf').all()
+        leciona = Leciona.objects.select_related('turma_id').all()
 
         alunos_data = [{'nome': aluno.user_cpf.nome, 
                         'email': aluno.user_cpf.email, 
@@ -33,16 +34,24 @@ class Listar(View):
                         'email': admin.user_cpf.email, 
                         'cpf': admin.user_cpf.cpf
                       } for admin in admins]
+        turmas_data = [{'id': lec.turma_id.id,
+                        'modalidade': lec.turma_id.modalidade,
+                        'professor': lec.prof_cpf.user_cpf.nome,
+                        'horario': lec.turma_id.horario,
+                        'semestre': lec.turma_id.semestre,
+                        'vagas': lec.turma_id.vagas,
+                        'is_open': lec.turma_id.is_open
+                      } for lec in leciona]
 
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-          return JsonResponse({'alunos': alunos_data, 'professores': professores_data, 'admins': admins_data})
+        # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        #   return JsonResponse({'alunos': alunos_data, 'professores': professores_data, 'admins': admins_data, 'turmas': turmas_data})
 
         # if 'listar_profs' in request.GET:
         #   professores = Professor.objects.all()
         # if 'listar_alunos' in request.GET:
         #   alunos = Aluno.objects.all()
 
-        return render(request, 'listar.html', {'alunos': alunos_data, 'professores': professores_data, 'admins': admins_data})
+        return render(request, 'listar.html', {'alunos': alunos_data, 'professores': professores_data, 'admins': admins_data, 'turmas': turmas_data})
 
       except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)  

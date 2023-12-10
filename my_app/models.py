@@ -22,8 +22,9 @@ class Administrador(models.Model):
 
 class Turma(models.Model):
     id = models.AutoField(primary_key=True)
-    esporte = models.CharField(max_length=255)
-    isOpen = models.BooleanField()
+    modalidade = models.CharField(max_length=255)
+    horario = models.CharField(max_length=255, null=True)
+    is_open = models.BooleanField()
     data_fechamento = models.DateTimeField(null=True)
     data_abertura = models.DateTimeField()
     semestre = models.FloatField(help_text='Ex.: 2023.2')
@@ -31,17 +32,17 @@ class Turma(models.Model):
 
 class Noticia(models.Model):
     id = models.AutoField(primary_key=True)
-    prof = models.ForeignKey(Professor, null=True, on_delete=models.SET_NULL)
+    prof_cpf = models.ForeignKey(Professor, null=True, on_delete=models.SET_NULL)
     turma_id = models.ForeignKey(Turma, null=True, on_delete=models.SET_NULL)
     conteudo = models.TextField()
     data_publicacao = models.DateTimeField()
 
 class Leciona(models.Model):
     id = models.AutoField(primary_key=True)
-    prof = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    prof_cpf = models.ForeignKey(Professor, on_delete=models.CASCADE)
     turma_id = models.ForeignKey(Turma, on_delete=models.CASCADE)
     data_inicio = models.DateTimeField()
-    data_termino = models.DateTimeField()
+    data_termino = models.DateTimeField(null=True)
 
 class Matricula(models.Model):
     id = models.AutoField(primary_key=True)
