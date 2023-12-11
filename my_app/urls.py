@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import Listar
+from .views import Admin
 
 urlpatterns = [
-    path('', Listar.as_view(), name='adm_inicial'),
+    path('', Admin.as_view(), name='adm_inicial'),
 ]

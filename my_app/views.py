@@ -1,10 +1,12 @@
+import re
 import json
 from django.views import View
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from .models import Aluno, Professor, Administrador, Leciona
+from .models import Aluno, Professor, Administrador, Leciona, Usuario
+from .forms import FormCPF
 
-class Listar(View):
+class Admin(View):
   def verificaValidadoPor(self, aluno):
      if aluno.atestado_apt_validado_por:
         return aluno.atestado_apt_validado_por.user_cpf.nome
@@ -13,6 +15,8 @@ class Listar(View):
 
   def get(self, request, *args, **kwargs):
       try:
+        form = FormCPF()
+        
         alunos = Aluno.objects.select_related('user_cpf').all()
         professores = Professor.objects.select_related('user_cpf').all()
         admins = Administrador.objects.select_related('user_cpf').all()
@@ -51,14 +55,19 @@ class Listar(View):
         # if 'listar_alunos' in request.GET:
         #   alunos = Aluno.objects.all()
 
-        return render(request, 'listar.html', {'alunos': alunos_data, 'professores': professores_data, 'admins': admins_data, 'turmas': turmas_data})
+        return render(request, 'admin.html', {'alunos': alunos_data, 
+                                              'professores': professores_data, 
+                                              'admins': admins_data, 
+                                              'turmas': turmas_data,
+                                              'formulario': form
+                                            })
 
       except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)  
 
   def put(self, request, *args, **kwargs):
      try:
-      admin_cpf = 1234 # Agostinho
+      admin_cpf = 123 # Agostinho
       aluno_cpf = json.loads(request.body).get('aluno_cpf')
 
       if not aluno_cpf:
@@ -73,7 +82,32 @@ class Listar(View):
       else:
           return JsonResponse({'erro': 'Não foi possível encontrar o aluno ou o administrador fornecido'}, status=400)         
 
-      return JsonResponse({'mensagem': 'Aluno atualizado com sucesso!'})
+      return JsonResponse({'mensagem': 'Atestado de aptidão física validado.'}, status=200)
      
      except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+     
+
+  def post(self,request, *args, **kwargs):
+      try:
+        form = FormCPF(request.POST)
+        if form.is_valid():
+          admin_que_cadastrou_cpf = 1234 # Eduardo Falcão
+          cpfNovoAdm = form.cleaned_data['cpf']
+          print(f'cpfNovoAdm {cpfNovoAdm}')
+          cpfNovoAdmCleaned = re.sub(r'\D', '', cpfNovoAdm) # Garante que tem apenas números
+          print(f'cpfNovoAdmCleaned {cpfNovoAdmCleaned}')
+
+          usuario = get_object_or_404(Usuario, cpf=cpfNovoAdmCleaned)
+          admin_que_cadastrou = get_object_or_404(Administrador, user_cpf=admin_que_cadastrou_cpf)
+
+          if usuario or admin_que_cadastrou:
+            novo_administrador = Administrador(
+              user_cpf=usuario,
+              cadastrado_por=admin_que_cadastrou
+            )
+            novo_administrador.save()
+
+          return redirect('adm_inicial')
+      except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)

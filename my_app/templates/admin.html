@@ -111,12 +111,42 @@
             <p>Não foi possível carregar as turmas.</p>
     {% endif %}
 
+    <h2>Cadastrar administrador</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ formulario.cpf.label }}
+        {{ formulario.cpf }}
+        {{ formulario.cpf.errors }}
+        <button type="submit">Enviar</button>
+    </form>
+
     <script>
+        document.getElementById('cpf-input').addEventListener('input', formataCPF);
+
         const listaAlunos = document.getElementById('lista-alunos');
         const listaProfessores = document.getElementById('lista-professores');
         const listaAdmins = document.getElementById('lista-admins');
         const url = "{% url 'adm_inicial' %}";
 
+        function formataCPF(event) {
+            let input = event.target;
+            let value = input.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+            if (value.length > 3) {
+                value = value.slice(0, 3) + '.' + value.slice(3);
+            }
+
+            if (value.length > 7) {
+                value = value.slice(0, 7) + '.' + value.slice(7);
+            }
+
+            if (value.length > 11) {
+                value = value.slice(0, 11) + '-' + value.slice(11);
+            }
+
+            input.value = value;
+        }
+        
         function aceitarAtestado(aluno_cpf) {
             const csrftoken = getCookie('csrftoken');
             
