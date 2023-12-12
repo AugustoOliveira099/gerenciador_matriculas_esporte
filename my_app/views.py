@@ -5,6 +5,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from .models import Aluno, Professor, Administrador, Leciona, Usuario
 from .forms import FormCPF
+from .forms import AlunoCadastroForm
+
 
 class Admin(View):
   def verificaValidadoPor(self, aluno):
@@ -111,3 +113,26 @@ class Admin(View):
           return redirect('adm_inicial')
       except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+class AlunoCadastroView(View):
+    template_name = 'cadastro_aluno.html'
+
+    def get(self, request, *args, **kwargs):
+        form = AlunoCadastroForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = AlunoCadastroForm(request.POST)
+
+        if form.is_valid():
+            novo_aluno = form.save(commit=False)
+            novo_aluno.status_aprovacao = False
+            novo_aluno.save()
+
+            return render(request, self.template_name, {'cadastro_sucesso': True, 'form': form})
+        else:
+            return render(request, self.template_name, {'form': form})
+
+
+
+    
