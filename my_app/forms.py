@@ -1,5 +1,5 @@
 from django import forms
-from .models import Aluno
+from .models import Usuario
 
 class FormCadastraTurma(forms.Form):
     intervalo_horario = forms.CharField(
@@ -22,12 +22,12 @@ class FormCPF(forms.Form):
         })
     )
 
-class AlunoCadastroForm(forms.ModelForm):
+class UsuarioCadastroForm(forms.ModelForm):
     class Meta:
-        model = Aluno
-        fields = ['user_cpf', 'atestado_apt', 'turma_id']
+        model = Usuario
+        fields = ['cpf', 'email', 'nome', 'senha', 'nascimento']
         widgets = {
-            'user_cpf': forms.TextInput(attrs={'type': 'hidden'}),  # Campo oculto
+            'cpf': forms.TextInput(attrs={'type': 'hidden'}),  # Campo oculto
         }
 
     

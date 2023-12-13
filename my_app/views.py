@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from .models import Aluno, Professor, Administrador, Leciona, Usuario
 from .forms import FormCPF
-from .forms import AlunoCadastroForm
+from .forms import UsuarioCadastroForm
 
 
 class Admin(View):
@@ -114,24 +114,25 @@ class Admin(View):
       except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-class AlunoCadastroView(View):
-    template_name = 'cadastro_aluno.html'
+class UsuarioCadastroView(View):
+    template_name = 'cadastro_user.html'
 
     def get(self, request, *args, **kwargs):
-        form = AlunoCadastroForm()
+        form = UsuarioCadastroForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
-        form = AlunoCadastroForm(request.POST)
+        form = UsuarioCadastroForm(request.POST)
 
         if form.is_valid():
-            novo_aluno = form.save(commit=False)
-            novo_aluno.status_aprovacao = False
-            novo_aluno.save()
+            novo_usuario = form.save(commit=False)
+            novo_usuario.status_aprovacao = False
+            novo_usuario.save()
 
-            return render(request, self.template_name, {'cadastro_sucesso': True, 'form': form})
+            return JsonResponse({'cadastro_sucesso': True})
         else:
             return render(request, self.template_name, {'form': form})
+
 
 
 

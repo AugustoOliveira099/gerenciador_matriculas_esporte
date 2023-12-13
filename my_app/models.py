@@ -12,7 +12,6 @@ class Aluno(models.Model):
     atestado_apt = models.CharField(max_length=255, null=True, help_text='Link para o documento')
     atestado_apt_validado_por = models.ForeignKey('Administrador', null=True, on_delete=models.SET_NULL)
     turma_id = models.ForeignKey('Turma', null=True, on_delete=models.SET_NULL)
-    status_aprovacao = models.BooleanField(default=False)
 
 class Professor(models.Model):
     user_cpf = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
