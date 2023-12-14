@@ -1,0 +1,32 @@
+<!-- {% load static %} -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagem de usuários</title>
+    <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
+</head>
+<body>
+    <h1>Página do aluno</h2>
+    {% if not aluno or not aluno.atestado_apt %}
+        <form method="post">
+            {% csrf_token %}
+            <h2>{{ form.atestado.label }}</h2> 
+            {{ form.atestado }}
+            {{ form.atestado.errors }}
+            <button type="submit">Enviar</button>
+        </form>
+    {% endif %}
+
+    <h2>Turmas</h2>
+    {% if aluno.atestado_apt %}
+        <p>{{ aluno.nome }}</p>
+    {% else %}
+        <p>Cadastre o seu atestado de aptidão física para visualizar as turmas disponíveis.</p>
+    {% endif %}
+    
+    <script></script>
+</body>
+</html>

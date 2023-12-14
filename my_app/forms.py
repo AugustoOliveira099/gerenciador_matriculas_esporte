@@ -1,6 +1,7 @@
 from django import forms
 from .models import Usuario
 
+# ---------- PROFESSOR ----------
 class FormCadastraTurma(forms.Form):
     intervalo_horario = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -9,7 +10,7 @@ class FormCadastraTurma(forms.Form):
         })
     )
 
-
+# ---------- ADMINISTRADOR ----------
 class FormCPF(forms.Form):
     cpf = forms.CharField(
         label='CPF',
@@ -22,6 +23,7 @@ class FormCPF(forms.Form):
         })
     )
 
+# ---------- USUÁRIO ----------
 class UsuarioCadastroForm(forms.ModelForm):
     class Meta:
         model = Usuario
@@ -30,4 +32,13 @@ class UsuarioCadastroForm(forms.ModelForm):
             'cpf': forms.TextInput(attrs={'type': 'hidden'}),  # Campo oculto
         }
 
+# ---------- ALUNO ----------
+class FormAptFisica(forms.Form):
+    atestado = forms.CharField(
+        label='Atestado de aptidão física',
+        widget=forms.TextInput(attrs={
+            'title': 'Informe o link para o seu atestado de aptidão física',
+            'placeholder': 'Link para o atestado'
+        })
+    )
     
