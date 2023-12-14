@@ -1,10 +1,12 @@
+<!-- {% load static %} -->
+
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listagem de usuários</title>
+    <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
 </head>
 <body>
     <button onclick="carregarUsuarios()">Atualizar listas</button>
@@ -16,7 +18,7 @@
                     <li id="{{ aluno.cpf }}"> 
                         <div class="aceitar-atestado">
                             {{ aluno.nome }}
-                            {% if not aluno.validado_por %}
+                            {% if not aluno.validado_em %}
                                 {% with aluno_cpf=aluno.cpf %}
                                     <button onclick="aceitarAtestado('{{ aluno_cpf }}')" type="button">Aceitar atestado</button>
                                 {% endwith %}
@@ -25,10 +27,15 @@
                         <ul>
                             <li>CPF: {{ aluno.cpf }}</li>
                             <li>Data de nascimento: {{ aluno.nascimento }}</li>
-                            <li>Turma: {{ aluno.turma }}</li>
-                            <li>Atestado de aptidão física: {{ aluno.atestado }}</li>
-                            {% if aluno.validado_por %}
+                            {% if aluno.turma %}
+                                <li>Turma: {{ aluno.turma }}</li>
+                            {% endif %}
+                            <li>Atestado de aptidão física: <a href="{{ aluno.atestado }}" target="_blank" rel="noopener noreferrer">{{ aluno.atestado }}</a></li>
+                            {% if aluno.validado_por and aluno.validado_em %}
                                 <li>Atestado validado por: {{ aluno.validado_por }}</li>
+                            {% endif %}
+                            {% if aluno.validado_em %}
+                                <li>Atestado validado em: {{ aluno.validado_em }}</li>
                             {% endif %}
                         </ul>
                     </li>
@@ -77,7 +84,7 @@
     <h2>Turmas</h2>
     {% if turmas %}
         {% if turmas|length > 0 %}
-            <table style="border: 1px solid black;">
+            <table class="lista-turmas" style="border: 1px solid black;">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -86,6 +93,7 @@
                         <th>Horário</th>
                         <th>Semestre</th>
                         <th>Vagas</th>
+                        <th>Aberta</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,6 +108,11 @@
                             <td>{{ turma.horario }}</td>
                             <td>{{ turma.semestre }}</td>
                             <td>{{ turma.vagas }}</td>
+                            {% if turma.is_open %}
+                                <td>Sim</td>
+                            {% else %}
+                                <td>Não</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -164,6 +177,9 @@
             })
             .catch(error => {
                 console.error('Erro:', error);
+            })
+            .finally(() => {
+                location.reload();
             });
         }
 
