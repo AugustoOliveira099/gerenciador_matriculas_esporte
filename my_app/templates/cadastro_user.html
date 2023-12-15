@@ -79,12 +79,18 @@
         <label for="senha">Senha:</label>
         <input type="password" id="senha" name="senha" required>
 
-        <button type="button" onclick="cadastrarUsuario()">Cadastrar Usuário</button>
+        <button type="submit">Cadastrar Usuário</button>
 
         <div id="loading-spinner">Carregando...</div>
     </form>
 
     <script>
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     document.getElementById('formulario-usuario').addEventListener('button', function (event) {
+        //         event.preventDefault();
+        //     })
+        // })
+
         function cadastrarUsuario() {
             console.log('Cadastrando usuário...');
 
@@ -94,7 +100,8 @@
             loadingSpinner.style.display = 'block';
 
             const csrftoken = getCookie('csrftoken');
-            const url = "http://127.0.0.1:8000/cadastro/";
+            const url = "{% url 'cadastro_user' %}";
+            const urlTarget = "{% url 'pagina_inicial' %}";
 
             const dadosUsuario = {
                 nome: formulario.querySelector('#nome').value,
@@ -114,14 +121,14 @@
             })
             .then(resp => {
                 if (resp.ok) {
-                    return resp.json();
+                    return 
                 } else {
                     throw new Error('Erro ao cadastrar usuário.');
                 }
             })
-            .then(data => {
-                console.log('Resposta:', data);
+            .then(() => {
                 alert('Cadastro realizado com sucesso!');
+                window.location.href = urlTarget;
             })
             .catch(error => {
                 console.error('Erro:', error.message);

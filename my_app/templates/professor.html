@@ -46,7 +46,7 @@
         }
 
         table {
-            width: 100%;
+            width: 50%;
             border-collapse: collapse;
             margin-top: 20px;
         }
@@ -54,7 +54,7 @@
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
-            text-align: left;
+            text-align: center;
         }
 
         th {
@@ -66,8 +66,21 @@
             background-color: #333;
         }
 
-        .lista-turmas td {
-            background-color: #ddd;
+        tr.open {
+            background-color: #5cb85c; /* Verde para turmas abertas */
+            cursor: pointer;
+        }
+
+        tr.open td {
+            color: white;
+        }
+
+        tr.closed {
+            background-color: #d9534f; /* Vermelho para turmas fechadas */
+        }
+
+        tr.closed td {
+            color: white;
         }
     </style>
 </head>
@@ -82,6 +95,7 @@
 
     <h2>Minhas turmas</h2>
     {% if turmas|length > 0 %}
+        <p>Clique em uma turma aberta para listar as notícias dela.</p>
         <table class="lista-turmas">
             <thead>
                 <tr>
@@ -97,7 +111,7 @@
             </thead>
             <tbody>
                 {% for turma in turmas %}
-                    <tr class="{% if turma.is_open %}open{% else %}closed{% endif %}">
+                    <tr class="{% if turma.is_open %}open{% else %}closed{% endif %}" data-turma-id="{{ turma.id }}">
                         <td>{{ turma.id }}</td>
                         <td>{{ turma.modalidade }}</td>
                         <td>{{ turma.horario }}</td>
@@ -131,9 +145,61 @@
         </form>
     {% endif %}
 
+    <div id="noticias-content"></div>
+
     <script>
+        const url = "{% url 'professor_inicial' %}";
         const csrftoken = getCookie('csrftoken');
 
+        document.addEventListener('DOMContentLoaded', function () {
+            var linhasTurma = document.getElementsByClassName('open');
+            for (var i = 0; i < linhasTurma.length; i++) {
+                linhasTurma[i].addEventListener('click', function () {
+                    const turma_id = this.getAttribute('data-turma-id');
+                    listarNoticias(turma_id);
+                });
+            }
+        });
+
+        function listarNoticias(turma_id) {
+            const res = confirm(`Listar notícias referente à turma ${turma_id}?`);
+            if (res) {
+                fetch(`/professor?turma_id=${turma_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(response => {
+                    noticias = response.noticias;
+                    const noticiasContent = document.getElementById("noticias-content");
+                    if (noticias.length > 0) {
+                        noticiasContent.innerHTML = `<h2>Notícias referentes à turma ${noticias[0].turma_id} - ${noticias[0].modalidade} (${noticias[0].horario})</h2>`;
+                        noticias.forEach(noticia => {
+                            noticiasContent.innerHTML += `
+                                <strong>Notícia cadastrada por ${noticia.professor} às ${noticia.data_publicacao}</strong>
+                                <p style="margin-bottom: 30px; width: 60%;">${noticia.conteudo}</p>
+                            `;
+                        });
+                    } else {
+                        noticiasContent.innerHTML = '<h2>Nenhuma notícia foi cadastrada na turma selecionada</h2>';
+                    }
+                })
+                .catch(error => {console.log(error)});
+            }
+        }
+        // 
+        //     <h2>Notícias da turma que estou matriculado</h2>
+        //     {% with primeira_noticia=noticias.0 %}
+        //         <h3 id="titulo-noticia">Turma {{ primeira_noticia.turma_id }} - {{ primeira_noticia.modalidade }} ({{ primeira_noticia.horario }})</h3>
+        //         {% for noticia in noticias %}
+        //             <strong>Notícia cadastrada por {{ noticia.professor }} às {{ noticia.data_publicacao }}</strong>
+        //             <p style="margin-bottom: 30px;">{{ noticia.conteudo }}</p>
+        //         {% endfor %}
+        //     {% endwith %}
+        // 
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {

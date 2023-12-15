@@ -46,6 +46,10 @@ class Leciona(models.Model):
     turma_id = models.ForeignKey(Turma, on_delete=models.CASCADE)
     data_inicio = models.DateTimeField(default=timezone.now)
     data_termino = models.DateTimeField(null=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['turma_id', 'prof_cpf'], name='unique_leciona')
+        ]
 
 class Matricula(models.Model):
     id = models.AutoField(primary_key=True)

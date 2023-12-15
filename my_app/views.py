@@ -219,11 +219,9 @@ class AlunoView(View):
     def put(self, request, *args, **kwargs):
         try:
             atestado_apt = json.loads(request.body).get('atestado')
-            print(json.loads(request.body))
             
             if not atestado_apt:
               raise Exception('Você não está registrado no nosso banco de dados.')
-            print('vrbvoribn\n\n')
 
             usuario = Usuario.objects.filter(email=self.user_email).first()
             if not usuario:
@@ -231,7 +229,6 @@ class AlunoView(View):
             
             aluno = Aluno.objects.filter(user_cpf__email=self.user_email).first()
 
-            print(f"aluno: {aluno}")
             if aluno:
                 aluno.atestado_apt = atestado_apt
                 aluno.atestado_apt_esperando_validacao = True
@@ -257,7 +254,6 @@ class AlunoView(View):
 
             is_matriculado = Matricula.objects.filter(aluno_cpf=aluno).exists()
             if is_matriculado:
-               print(f'is_matriculado: {is_matriculado}')
                raise Exception('Você já está matriculado em uma turma. É possível praticar apenas um esporte na instituição.')
             
             leciona = Leciona.objects.filter(id=lec_id).first()
@@ -281,6 +277,7 @@ class AlunoView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 class UsuarioCadastroView(View):
+    template_target = 'pagina_inicial'
     template_name = 'cadastro_user'
     template_file = 'cadastro_user.html'
 
@@ -292,57 +289,74 @@ class UsuarioCadastroView(View):
         form = UsuarioCadastroForm(request.POST)
 
         if form.is_valid():
+            print('ENTROU\n')
             novo_usuario = form.save(commit=False)
             novo_usuario.status_aprovacao = False
             novo_usuario.save()
 
-            # return redirect('adm_inicial')
-            return JsonResponse({'cadastro_sucesso': True})
+            return redirect(self.template_target)
         else:
-            return render(request, self.template_file, {'form': form})
+            print('NAO ENTROU\n')
+            return redirect(self.template_name)
 
 class ProfessorView(View):
    template_name = 'professor_inicial'
    template_file = 'professor.html'
-   prof_cpf_logado = 1 # Eduardo Falcão
+   prof_cpf_logado = 1234 # Eduardo Falcão
    
    def get(self, request, *args, **kwargs):
-      forms_turma = FormCadastraTurma()
-      forms_noticia = FormCadastraNoticia()
+      if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+          try:
+              noticias_data = []
+              turma_id = request.GET.get('turma_id', None)
+              leciona_ativos = Leciona.objects.filter(
+                Q(prof_cpf__user_cpf__cpf=self.prof_cpf_logado) & 
+                Q(turma_id__id=turma_id) &
+                Q(turma_id__is_open=True)
+              ).first()
 
-      lec_prof_logado = Leciona.objects.filter(prof_cpf=self.prof_cpf_logado)
-      if lec_prof_logado:
-         turmas = [{
-            'id': lec.turma_id.id,
-            'modalidade': lec.turma_id.modalidade,
-            'horario': lec.turma_id.horario,
-            'is_open': lec.turma_id.is_open,
-            'data_abertura': lec.turma_id.data_abertura.strftime('%d/%m/%Y'),
-            'data_fechamento': lec.turma_id.data_fechamento.strftime('%d/%m/%Y') if lec.turma_id.data_fechamento else None,
-            'semestre': lec.turma_id.semestre,
-            'vagas': lec.turma_id.vagas
-         } for lec in lec_prof_logado]
+              if leciona_ativos:
+                noticias = Noticia.objects.filter(
+                    Q(turma_id=leciona_ativos.turma_id) & 
+                    Q(prof_cpf=leciona_ativos.prof_cpf)
+                  ).order_by('-data_publicacao')
 
-      # Matrículas
-      matriculas_ativas = Matricula.objects.filter(Q(prof_cpf__user_cpf__cpf=self.prof_cpf_logado) & Q(turma_id__is_open=True))
+                noticias_data = [{
+                  
+                } for noticia in noticias]
 
-      noticias_relacionadas = Noticia.objects.filter(turma_id__in=matriculas_ativas.values_list('turma_id', flat=True)).annotate(
-          turma_id_ordenacao=F('turma_id')
-      ).order_by('-turma_id_ordenacao', '-data_publicacao')
+                noticias_data = [{'id': noticia.id,
+                            'turma_id': noticia.turma_id.id,
+                            'professor': noticia.prof_cpf.user_cpf.nome,
+                            'modalidade': noticia.turma_id.modalidade,
+                            'horario': noticia.turma_id.horario,
+                            'conteudo': noticia.conteudo,
+                            'data_publicacao': noticia.data_publicacao.strftime('%H:%M:%S do dia %d/%m/%Y')
+                          } for noticia in noticias]
+                
+              return JsonResponse({'noticias': noticias_data})
+          except Exception as e:
+              return JsonResponse({'error': str(e)}, status=500)
+      else:
+          forms_turma = FormCadastraTurma()
+          forms_noticia = FormCadastraNoticia()
 
-      print(noticias_relacionadas)
+          lec_prof_logado = Leciona.objects.filter(prof_cpf=self.prof_cpf_logado)
+          if lec_prof_logado:
+            turmas = [{
+                'id': lec.turma_id.id,
+                'modalidade': lec.turma_id.modalidade,
+                'horario': lec.turma_id.horario,
+                'is_open': lec.turma_id.is_open,
+                'data_abertura': lec.turma_id.data_abertura.strftime('%d/%m/%Y'),
+                'data_fechamento': lec.turma_id.data_fechamento.strftime('%d/%m/%Y') if lec.turma_id.data_fechamento else None,
+                'semestre': lec.turma_id.semestre,
+                'vagas': lec.turma_id.vagas
+            } for lec in lec_prof_logado]
 
-      # if noticias_relacionadas:
-      #     noticias = [{'id': noticia.id,
-      #                 'turma_id': noticia.turma_id.id,
-      #                 'professor': noticia.prof_cpf.user_cpf.nome,
-      #                 'modalidade': noticia.turma_id.modalidade,
-      #                 'horario': noticia.turma_id.horario,
-      #                 'conteudo': noticia.conteudo,
-      #                 'data_publicacao': noticia.data_publicacao.strftime('%H:%M:%S do dia %d/%m/%Y')
-      #               } for noticia in noticias_das_turmas_ativas]
-
-      return render(request, self.template_file, {'forms_turma': forms_turma, 'forms_noticia': forms_noticia, 'turmas': turmas})
+          return render(request, self.template_file, {'forms_turma': forms_turma, 
+                                                      'forms_noticia': forms_noticia, 
+                                                      'turmas': turmas})
    
    def post(self, request, *args, **kwargs):
       try:
@@ -350,7 +364,6 @@ class ProfessorView(View):
         forms_noticia = FormCadastraNoticia(request.POST)
 
         if form.is_valid():
-          print('\noinrvorin\n')
           modalidade = form.cleaned_data['modalidade']
           horario = form.cleaned_data['horario']
           vagas = form.cleaned_data['vagas']
