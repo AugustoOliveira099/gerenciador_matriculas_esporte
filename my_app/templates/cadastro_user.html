@@ -81,7 +81,6 @@
 
         <button type="button" onclick="cadastrarUsuario()">Cadastrar Usuário</button>
 
-        <!-- Elemento para mostrar o símbolo de carregamento -->
         <div id="loading-spinner">Carregando...</div>
     </form>
 
@@ -92,13 +91,18 @@
             const formulario = document.getElementById('formulario-usuario');
             const loadingSpinner = document.getElementById('loading-spinner');
 
-            // Mostra o símbolo de carregamento
             loadingSpinner.style.display = 'block';
 
             const csrftoken = getCookie('csrftoken');
             const url = "http://127.0.0.1:8000/cadastro/";
 
-            // Restante do código para enviar o formulário...
+            const dadosUsuario = {
+                nome: formulario.querySelector('#nome').value,
+                cpf: formulario.querySelector('#cpf').value.replace(/\D/g, ''),
+                email: formulario.querySelector('#email').value,
+                nascimento: formulario.querySelector('#nascimento').value,
+                senha: formulario.querySelector('#senha').value,
+            };
 
             fetch(url, {
                 method: 'POST',
@@ -127,7 +131,6 @@
                 formulario.appendChild(errorMessageElement);
             })
             .finally(() => {
-                // Esconde o símbolo de carregamento após o término do processo
                 loadingSpinner.style.display = 'none';
             });
         }
@@ -138,7 +141,6 @@
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i].trim();
-                    // Verifique se o cookie começa com o nome desejado
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
