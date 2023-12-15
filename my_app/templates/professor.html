@@ -1,12 +1,75 @@
-<!-- {% load static %} -->
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professor</title>
-    <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 10px;
+            padding: 0;
+            color: #333;
+        }
+
+        h1, h2, th, td, p {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+            padding-left: 20px;
+        }
+
+        input, select {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mensagem-sucesso {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .mensagem-erro {
+            color: red;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .lista-turmas th {
+            background-color: #333;
+        }
+
+        .lista-turmas td {
+            background-color: #ddd;
+        }
+    </style>
 </head>
 <body>
     <h1>Página do professor</h1>
@@ -19,7 +82,7 @@
 
     <h2>Minhas turmas</h2>
     {% if turmas|length > 0 %}
-        <table class="lista-turmas" style="border: 1px solid black;">
+        <table class="lista-turmas">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -34,9 +97,7 @@
             </thead>
             <tbody>
                 {% for turma in turmas %}
-                    <tr 
-                        class= "{% if turma.is_open %}open{% else %}closed{% endif %}"
-                    >
+                    <tr class="{% if turma.is_open %}open{% else %}closed{% endif %}">
                         <td>{{ turma.id }}</td>
                         <td>{{ turma.modalidade }}</td>
                         <td>{{ turma.horario }}</td>
@@ -62,18 +123,16 @@
     {% endif %}
 
     {% if turmas|length > 0 %}
-      <h2>Cadastrar notícia</h2>
-      <form method="post">
-          {% csrf_token %}
-          {{ forms_noticia }}
-          <button type="submit">Enviar</button>
-      </form>
+        <h2>Cadastrar notícia</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ forms_noticia }}
+            <button type="submit">Enviar</button>
+        </form>
     {% endif %}
 
     <script>
-        const csrftoken = getCookie('csrftoken'); 
-        
-
+        const csrftoken = getCookie('csrftoken');
 
         function getCookie(name) {
             let cookieValue = null;

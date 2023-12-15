@@ -11,15 +11,16 @@
             background-color: #f4f4f4;
             margin: 10px;
             padding: 0;
+            color: #333;
         }
 
-        h1, h2, p {
+        h2, h3, p {
             color: #333;
         }
 
         form {
             margin-top: 20px;
-            padding-left: 20px; /* Adiciona espaçamento à esquerda de 20px */
+            padding-left: 20px;
         }
 
         input {
@@ -35,19 +36,52 @@
             cursor: pointer;
         }
 
-        p {
-            margin-top: 20px;
+        .mensagem-sucesso {
+            color: green;
+            margin-top: 10px;
         }
-    </style>
-    <style>
+
+        .mensagem-erro {
+            color: red;
+            margin-top: 10px;
+        }
+
         .linha-turma {
             cursor: pointer;
         }
+
         .linha-turma:hover {
             color: lightseagreen;
         }
+
         h3 {
             font-size: 18px;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .lista-minhas-turmas th {
+            background-color: #333;
+        }
+
+        .lista-minhas-turmas td {
+            background-color: #ddd;
         }
     </style>
 </head>
@@ -61,12 +95,12 @@
             <button type="submit" id="enviar-atestado">Enviar</button>
         </form>
         {% if aluno.atestado_apt_esperando_validacao %}
-            <strong>
+            <p class="mensagem-sucesso">
                 Seu atestado de aptidão física, com endereço 
                 "{{ aluno.atestado_apt }}", foi submetido com sucesso. 
-                Caso submeta novamente um link, será considero apenas 
+                Caso submeta novamente um link, será considerado apenas 
                 o último envio.
-            </strong>
+            </p>
         {% endif %}
     {% endif %}
 
@@ -74,7 +108,7 @@
     {% if aluno.atestado_apt_validado_em %}
         {% if turmas|length > 0 %}
             <h3>Faça a sua matrícula em uma das turmas listadas abaixo clicando nelas.</h3>
-            <table class="lista-turmas" style="border: 1px solid black;">
+            <table class="lista-turmas">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -100,17 +134,17 @@
             <p>Não há turmas abertas.</p>
         {% endif %}
     {% elif aluno.atestado_apt_esperando_validacao %}
-        <p>
+        <p class="mensagem-erro">
             Espere um dos nossos administradores verificar o seu atestado de 
             aptidão física para visualizar as turmas disponíveis.
         </p>
     {% elif aluno.nome and not aluno.atestado_apt %}
-        <p>
-            Há de 1 ano que você submeteu o seu atestado de aptidão, cadastre um 
+        <p class="mensagem-erro">
+            Há 1 ano que você submeteu o seu atestado de aptidão, cadastre um 
             atualizado para que você possa visualizar as turmas disponíveis.
         </p>
     {% elif not aluno %}
-        <p>
+        <p class="mensagem-erro">
             Cadastre o seu atestado de aptidão física para visualizar 
             as turmas disponíveis.
         </p>
@@ -118,7 +152,7 @@
 
     {% if turmas_aluno|length > 0 %}
         <h2>Histórico das minhas turmas</h2>
-            <table class="lista-minhas-turmas" style="border: 1px solid black;">
+            <table class="lista-minhas-turmas">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -164,6 +198,7 @@
             {% endfor %}
         {% endwith %}
     {% endif %}
+    
     
     <script>
         const url = "{% url 'aluno_inicial' %}";
