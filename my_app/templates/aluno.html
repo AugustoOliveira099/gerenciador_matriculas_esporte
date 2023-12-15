@@ -1,15 +1,47 @@
-<!-- {% load static %} -->
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listagem de usuários</title>
-    <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 10px;
+            padding: 0;
+        }
+
+        h1, h2, p {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+            padding-left: 20px; /* Adiciona espaçamento à esquerda de 20px */
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        p {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Página do aluno</h2>
+    <h1>Página do aluno</h1>
     {% if not aluno or not aluno.atestado_apt %}
         <form method="post">
             {% csrf_token %}

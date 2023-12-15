@@ -4,6 +4,56 @@
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastre-se</title>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 10px;
+            padding: 0;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+            padding-left: 20px;
+            max-width: 400px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h2>Cadastre-se no sistema</h2>
@@ -28,13 +78,13 @@
     </form>
 
     <script>
-            function cadastrarUsuario() {
+        function cadastrarUsuario() {
             console.log('Cadastrando usuário...');
-
+    
             const formulario = document.getElementById('formulario-usuario');
             const csrftoken = getCookie('csrftoken');
             const url = "http://127.0.0.1:8000/cadastro/";
-
+    
             const dadosUsuario = {
                 nome: formulario.querySelector('#nome').value,
                 cpf: formulario.querySelector('#cpf').value.replace(/\D/g, ''),
@@ -42,7 +92,7 @@
                 nascimento: formulario.querySelector('#nascimento').value,
                 senha: formulario.querySelector('#senha').value,
             };
-
+    
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -61,12 +111,16 @@
             .then(data => {
                 console.log('Resposta:', data);
                 alert('Cadastro realizado com sucesso!');
+                window.location.href = "/aluno/"; // Redireciona para a página do aluno
             })
             .catch(error => {
                 console.error('Erro:', error.message);
+                const errorMessageElement = document.createElement('div');
+                errorMessageElement.className = 'error-message';
+                errorMessageElement.textContent = 'Erro ao cadastrar usuário. Verifique os dados e tente novamente.';
+                formulario.appendChild(errorMessageElement);
             });
         }
     </script>
-
 </body>
 </html>
