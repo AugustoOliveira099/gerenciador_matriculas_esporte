@@ -12,6 +12,13 @@ O sistema tem 03 atores  Aluno , Professor e Administrador, tendo como requisito
 - Administrador cadastrar novos Administradores ;
 - Professor cadastrar notícia.
 
+  Abaixo temos o modelo ER , que demonstra como as entidades do sistema se relacionam :
+
   ![Texto Alternativo](modeloER.png)
+
+ O modelo relacional para o gerenciador de matrículas em esportes está fundamentado no banco de dados específico desenvolvido para essa aplicação, conforme detalhado abaixo:
+
+ [Modelo Relacional](https://dbdiagram.io/d/Trabalho-banco-de-dados-655796eb3be14957873787ed)
+
 
 
