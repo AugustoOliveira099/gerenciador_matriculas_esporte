@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listagem de usuários</title>
+    <title>Administrador</title>
     
     <style>
         body {
@@ -88,7 +88,7 @@
                             {% if aluno.turma %}
                                 <li>Turma: {{ aluno.turma }}</li>
                             {% endif %}
-                            <li>Atestado de aptidão física: <a href="{{ aluno.atestado }}" target="_blank" rel="noopener noreferrer">{{ aluno.atestado }}</a></li>
+                                <li>Atestado de aptidão física: <a href="{{ aluno.atestado }}" target="_blank" rel="noopener noreferrer">{{ aluno.atestado }}</a></li>
                             {% if aluno.validado_por and aluno.validado_em %}
                                 <li>Atestado validado por: {{ aluno.validado_por }}</li>
                             {% endif %}
@@ -229,10 +229,6 @@
                 },
                 body: JSON.stringify({ aluno_cpf })
             })
-            .then(resp => resp.json())
-            .then(data => {
-                console.info(data)
-            })
             .catch(error => {
                 console.error('Erro:', error);
             })
@@ -250,44 +246,7 @@
             })
             .then(() => {
                 location.reload();
-            })
-        //     .then(resp => resp.json())
-        //     .then(data => {
-        //         console.log('Resposta do servidor:', data);
-                
-        //         listaAlunos.innerHTML = '';
-        //         data.alunos.forEach(aluno => {
-        //             let button = ''
-        //             if (!aluno.validado_por) {
-        //                 button = `<button onclick="aceitarAtestado(${aluno.cpf})" type="button">Aceitar atestado</button>`
-        //             }
-                    
-        //             listaAlunos.innerHTML += `<li ${aluno.cpf}>
-        //                                         <div class="aceitar-atestado">
-        //                                             ${aluno.nome}
-        //                                             ${button}
-        //                                         </div> 
-        //                                         <ul>
-        //                                             <li>CPF: ${aluno.cpf}</li>
-        //                                             <li>Data de nascimento: ${aluno.nascimento}</li>
-        //                                             <li>Turma: ${aluno.turma}</li>
-        //                                             <li>Atestado de aptidão física: ${aluno.atestado}</li>
-        //                                             <li>Atestado validado por: ${aluno.validado_por}</li>
-        //                                         </ul>
-        //                                       </li>`;
-        //         });
-
-        //         listaProfessores.innerHTML = '';
-        //         data.professores.forEach(professor => {
-        //             listaProfessores.innerHTML += `<li ${professor.cpf}>${professor.nome} - ${professor.email}</li>`;
-        //         });
-
-        //         listaAdmins.innerHTML = '';
-        //         data.admins.forEach(admin => {
-        //             listaAdmins.innerHTML += `<li ${admin.cpf}>${admin.nome} - ${admin.email}</li>`;
-        //         });
-        //     })
-            
+            })            
             .catch(error => {
                 console.error('Erro:', error);
             });

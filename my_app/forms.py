@@ -3,11 +3,59 @@ from .models import Usuario
 
 # ---------- PROFESSOR ----------
 class FormCadastraTurma(forms.Form):
-    intervalo_horario = forms.CharField(
+    modalidade = forms.CharField(
+        label='Modalidade ensinada',
         widget=forms.TextInput(attrs={
-            'placeholder': 'HH:MM às HH:MM', 
-            'pattern': '^[0-2][0-9]:[0-5][0-9] às [0-2][0-9]:[0-5][0-9]$'
-        })
+            'title': 'Informe a modalidade que será ensinada.',
+            'placeholder': 'Modalidade'
+        }),
+        required=True
+    )
+    horario = forms.CharField(
+        label='Horário da aula',
+        widget=forms.TextInput(attrs={
+            'title': 'Informe o horário no padrão UFRN. Ex.: 2T34.',
+            'placeholder': 'Horário no padrão UFRN', 
+            'pattern': '^[2-7][MTN][1-5][2-6]$'
+        }),
+        required=True
+    )
+    vagas = forms.IntegerField(
+        label='Vagas',
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'title': 'Informe um valor entre 0 e 100',
+            'placeholder': 'Vagas disponíveis', 
+        }),
+        required=True
+    )
+    semestre = forms.FloatField(
+        label='Semestre',
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Semestre de ensino', 
+            'title': 'Semestre que será ensinado o esporte. Ex.: 2023.2',
+            'step': '0.1'
+        }),
+        required=True
+    )
+
+class FormCadastraNoticia(forms.Form):
+    conteudo = forms.CharField(
+        label='Notícia',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Digite o conteúdo da notícia',
+        }),
+        required=True
+    )
+
+    turma_id = forms.IntegerField(
+        label='Id da turma',
+        widget=forms.NumberInput(attrs={
+            'title': 'Id da turma que receberá a notícia',
+            'placeholder': 'Digite um número inteiro'
+        }),
+        required=True
     )
 
 # ---------- ADMINISTRADOR ----------
@@ -39,6 +87,6 @@ class FormAptFisica(forms.Form):
         widget=forms.TextInput(attrs={
             'title': 'Informe o link para o seu atestado de aptidão física',
             'placeholder': 'Link para o atestado'
-        })
+        }),
+        required=True
     )
-    
