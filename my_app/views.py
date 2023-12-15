@@ -324,10 +324,6 @@ class ProfessorView(View):
                     Q(prof_cpf=leciona_ativos.prof_cpf)
                   ).order_by('-data_publicacao')
 
-                noticias_data = [{
-                  
-                } for noticia in noticias]
-
                 noticias_data = [{'id': noticia.id,
                             'turma_id': noticia.turma_id.id,
                             'professor': noticia.prof_cpf.user_cpf.nome,
