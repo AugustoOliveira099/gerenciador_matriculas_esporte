@@ -76,10 +76,12 @@
                     <li id="{{ aluno.cpf }}"> 
                         <div class="aceitar-atestado">
                             {{ aluno.nome }}
-                            {% if not aluno.validado_em %}
+                            {% if not aluno.validado_em and aluno.atestado %}
                                 {% with aluno_cpf=aluno.cpf %}
                                     <button onclick="aceitarAtestado('{{ aluno_cpf }}')" type="button">Aceitar atestado</button>
                                 {% endwith %}
+                            {% elif not aluno.atestado %}
+                                <span style="color: red;">Atestado de apt. atrasado</span>
                             {% endif %}
                         </div>
                         <ul>
@@ -88,7 +90,9 @@
                             {% if aluno.turma %}
                                 <li>Turma: {{ aluno.turma }}</li>
                             {% endif %}
+                            {% if aluno.atestado %}
                                 <li>Atestado de aptidão física: <a href="{{ aluno.atestado }}" target="_blank" rel="noopener noreferrer">{{ aluno.atestado }}</a></li>
+                            {% endif %}
                             {% if aluno.validado_por and aluno.validado_em %}
                                 <li>Atestado validado por: {{ aluno.validado_por }}</li>
                             {% endif %}

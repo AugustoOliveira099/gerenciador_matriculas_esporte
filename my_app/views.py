@@ -133,7 +133,7 @@ class AlunoView(View):
     template_file = 'aluno.html'
     template_name = 'aluno_inicial'
     # TODO: remover isso se houver página de login
-    user_email = 'jaugustox21@gmail.com'
+    user_email = 'testeeee@gmail.com'
 
     def verificaValidadeAtestado(self, aluno):
      if aluno.atestado_apt_validado_em:
@@ -157,6 +157,7 @@ class AlunoView(View):
         turmas = []
         noticias = []
         turmas_aluno = []
+        noticias_da_turma_ativa = []
         form = FormAptFisica()
 
         aluno = Aluno.objects.filter(user_cpf__email=self.user_email).first()
@@ -166,12 +167,14 @@ class AlunoView(View):
 
         # Matrículas
         matricula_ativa = Matricula.objects.filter(Q(aluno_cpf=aluno) & Q(turma_id__is_open=True)).first()
-        noticias_da_turma_ativa = Noticia.objects.filter(turma_id=matricula_ativa.turma_id).order_by('-data_publicacao')
+        if matricula_ativa:
+          noticias_da_turma_ativa = Noticia.objects.filter(turma_id=matricula_ativa.turma_id).order_by('-data_publicacao')
 
         # Turmas
         matriculas = Matricula.objects.filter(aluno_cpf=aluno)
 
-        if noticias_da_turma_ativa:
+
+        if len(noticias_da_turma_ativa) > 0:
            noticias = [{'id': noticia.id,
                         'turma_id': noticia.turma_id.id,
                         'professor': noticia.prof_cpf.user_cpf.nome,
