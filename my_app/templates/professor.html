@@ -1,0 +1,95 @@
+<!-- {% load static %} -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor</title>
+    <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
+</head>
+<body>
+    <h1>Página do professor</h1>
+    <h2>Cadastrar turma</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ forms_turma }}
+        <button type="submit">Enviar</button>
+    </form>
+
+    <h2>Minhas turmas</h2>
+    {% if turmas|length > 0 %}
+        <table class="lista-turmas" style="border: 1px solid black;">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Modalidade</th>
+                    <th>Horário</th>
+                    <th>Semestre</th>
+                    <th>Vagas</th>
+                    <th>Data de abertura</th>
+                    <th>Data de fechamento</th>
+                    <th>Aberta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for turma in turmas %}
+                    <tr 
+                        class= "{% if turma.is_open %}open{% else %}closed{% endif %}"
+                    >
+                        <td>{{ turma.id }}</td>
+                        <td>{{ turma.modalidade }}</td>
+                        <td>{{ turma.horario }}</td>
+                        <td>{{ turma.semestre }}</td>
+                        <td>{{ turma.vagas }}</td>
+                        <td>{{ turma.data_abertura }}</td>
+                        {% if turma.is_open %}
+                            <td>-</td>
+                        {% else %}
+                            <td>{{ turma.data_fechamento }}</td>
+                        {% endif %}
+                        {% if turma.is_open %}
+                            <td>Sim</td>
+                        {% else %}
+                            <td>Não</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Você não está lecionando no momento.</p>
+    {% endif %}
+
+    {% if turmas|length > 0 %}
+      <h2>Cadastrar notícia</h2>
+      <form method="post">
+          {% csrf_token %}
+          {{ forms_noticia }}
+          <button type="submit">Enviar</button>
+      </form>
+    {% endif %}
+
+    <script>
+        const csrftoken = getCookie('csrftoken'); 
+        
+
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Verifique se o cookie começa com o nome desejado
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

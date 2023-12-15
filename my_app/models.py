@@ -13,6 +13,7 @@ class Aluno(models.Model):
     atestado_apt = models.CharField(max_length=255, null=True, help_text='Link para o documento')
     atestado_apt_validado_por = models.ForeignKey('Administrador', null=True, on_delete=models.SET_NULL)
     atestado_apt_validado_em = models.DateTimeField(null=True)
+    atestado_apt_esperando_validacao = models.BooleanField(default=False)
     turma_id = models.ForeignKey('Turma', null=True, on_delete=models.SET_NULL)
 
 class Professor(models.Model):
@@ -59,6 +60,7 @@ class Matricula(models.Model):
 class Frequencia(models.Model):
     matric_id = models.ForeignKey(Matricula, on_delete=models.CASCADE)
     data = models.DateTimeField()
+    presente = models.BooleanField(null=True)
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['matric_id', 'data'], name='unique_frequencia')

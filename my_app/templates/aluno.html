@@ -5,28 +5,223 @@
 <head>
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listagem de usuários</title>
+    <title>Aluno</title>
     <!-- <link rel="stylesheet" href="{% static 'styles/admin.css' %}"> -->
+    <style>
+        .linha-turma {
+            cursor: pointer;
+        }
+        .linha-turma:hover {
+            color: lightseagreen;
+        }
+        h3 {
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <h1>Página do aluno</h2>
-    {% if not aluno or not aluno.atestado_apt %}
-        <form method="post">
-            {% csrf_token %}
+    {% if not aluno or not aluno.atestado_apt_validado_em %}
+        <form id="form-atestado" method="post">
             <h2>{{ form.atestado.label }}</h2> 
             {{ form.atestado }}
             {{ form.atestado.errors }}
-            <button type="submit">Enviar</button>
+            <button type="submit" id="enviar-atestado">Enviar</button>
         </form>
+        {% if aluno.atestado_apt_esperando_validacao %}
+            <strong>
+                Seu atestado de aptidão física, com endereço 
+                "{{ aluno.atestado_apt }}", foi submetido com sucesso. 
+                Caso submeta novamente um link, será considero apenas 
+                o último envio.
+            </strong>
+        {% endif %}
     {% endif %}
 
     <h2>Turmas</h2>
-    {% if aluno.atestado_apt %}
-        <p>{{ aluno.nome }}</p>
-    {% else %}
-        <p>Cadastre o seu atestado de aptidão física para visualizar as turmas disponíveis.</p>
+    {% if aluno.atestado_apt_validado_em %}
+        {% if turmas|length > 0 %}
+            <h3>Faça a sua matrícula em uma das turmas listadas abaixo clicando nelas.</h3>
+            <table class="lista-turmas" style="border: 1px solid black;">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Modalidade</th>
+                        <th>Professor</th>
+                        <th>Horário</th>
+                        <th>Vagas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turma in turmas %}
+                        <tr class="linha-turma" data-lec-id="{{ turma.lec_id}}">
+                            <td>{{ turma.id }}</td>
+                            <td>{{ turma.modalidade }}</td>
+                            <td>{{ turma.professor }}</td>
+                            <td>{{ turma.horario }}</td>
+                            <td>{{ turma.vagas }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Não há turmas abertas.</p>
+        {% endif %}
+    {% elif aluno.atestado_apt_esperando_validacao %}
+        <p>
+            Espere um dos nossos administradores verificar o seu atestado de 
+            aptidão física para visualizar as turmas disponíveis.
+        </p>
+    {% elif aluno.nome and not aluno.atestado_apt %}
+        <p>
+            Há de 1 ano que você submeteu o seu atestado de aptidão, cadastre um 
+            atualizado para que você possa visualizar as turmas disponíveis.
+        </p>
+    {% elif not aluno %}
+        <p>
+            Cadastre o seu atestado de aptidão física para visualizar 
+            as turmas disponíveis.
+        </p>
+    {% endif %}
+
+    {% if turmas_aluno|length > 0 %}
+        <h2>Histórico das minhas turmas</h2>
+            <table class="lista-minhas-turmas" style="border: 1px solid black;">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Modalidade</th>
+                        <th>Professor</th>
+                        <th>Horário</th>
+                        <th>Semestre</th>
+                        <th>Vagas</th>
+                        <th>Aberta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turma in turmas_aluno %}
+                        <tr class="linha-minhas-turmas">
+                            <td>{{ turma.id }}</td>
+                            <td>{{ turma.modalidade }}</td>
+                            <td>{{ turma.professor }}</td>
+                            <td>{{ turma.horario }}</td>
+                            <td>{{ turma.semestre }}</td>
+                            {% if turma.is_open %}
+                                <td>{{ turma.vagas }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                            {% if turma.is_open %}
+                                <td>Sim</td>
+                            {% else %}
+                                <td>Não</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    {% endif %}
+
+    {% if noticias|length > 0 %}
+        <h2>Notícias da turma que estou matriculado</h2>
+        {% with primeira_noticia=noticias.0 %}
+            <h3 id="titulo-noticia">Turma {{ primeira_noticia.turma_id }} - {{ primeira_noticia.modalidade }} ({{ primeira_noticia.horario }})</h3>
+            {% for noticia in noticias %}
+                <strong>Notícia cadastrada por {{ noticia.professor }} às {{ noticia.data_publicacao }}</strong>
+                <p style="margin-bottom: 30px;">{{ noticia.conteudo }}</p>
+            {% endfor %}
+        {% endwith %}
     {% endif %}
     
-    <script></script>
+    <script>
+        const url = "{% url 'aluno_inicial' %}";
+        const csrftoken = getCookie('csrftoken');
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('form-atestado').addEventListener('submit', function (event) {
+                event.preventDefault();
+            })
+        })
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('enviar-atestado').addEventListener('click', function () {
+                const formElement = document.getElementById('form-atestado');
+                const formData = new FormData(formElement);
+                const value = formData.entries().next().value[1]
+
+                fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ 'atestado': value })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na solicitação PUT');
+                    }
+                })
+                .catch(error => {
+                    // Lógica de erro aqui
+                    console.error(error);
+                })
+                .finally(() => {
+                    location.reload();
+                });
+
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var linhasTurma = document.getElementsByClassName('linha-turma');
+            for (var i = 0; i < linhasTurma.length; i++) {
+                linhasTurma[i].addEventListener('click', function () {
+                    const lec_id = this.getAttribute('data-lec-id');
+                    matricular(lec_id);
+                });
+            }
+        });
+
+        function matricular(lec_id) {
+            const res = confirm(`Tem certeza que deseja se matricular na turma com id ${lec_id} que foi selecionada?`);
+            if (res) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ lec_id })
+                })
+                .then(data => data.json())
+                .then(data => {
+                    alert(data.error)
+                })
+                .catch(error => {
+                    alert('Você se matriculou com sucesso. Parabéns!')
+                })
+                .finally(() => {
+                    location.reload();
+                });
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Verifique se o cookie começa com o nome desejado
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </body>
 </html>
