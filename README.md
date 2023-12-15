@@ -12,6 +12,6 @@ O sistema tem 03 atores  Aluno , Professor e Administrador, tendo como requisito
 - Administrador cadastrar novos Administradores ;
 - Professor cadastrar notícia.
 
-  ![Texto Alternativo](modelo ER.png)
+  ![Texto Alternativo](modelo_ER.png)
 
 
