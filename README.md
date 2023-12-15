@@ -10,6 +10,8 @@ O sistema tem 03 atores  Aluno , Professor e Administrador, tendo como requisito
 - Aluno conseguir listar as turmas;
 - Professor criar turma ;
 - Administrador cadastrar novos Administradores ;
-- Professor cadastrar notícia .
+- Professor cadastrar notícia.
+
+  ![Texto Alternativo](modelo ER.png)
 
 
