@@ -1,0 +1,91 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        nav {
+            background-color: #ddd;
+            overflow: hidden;
+        }
+
+        nav a {
+            float: left;
+            display: block;
+            color: #333;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Adicione este estilo ao seu bloco de estilos existente */
+        .imagem-centralizada {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Isso faz com que a div ocupe 100% da altura da viewport */
+        }
+
+        .imagem-centralizada img {
+            max-width: 100%; /* Garante que a imagem não ultrapasse a largura da div */
+            max-height: 100%; /* Garante que a imagem não ultrapasse a altura da div */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Página Inicial</h1>
+</header>
+
+<nav>
+    <a href="{% url 'adm_inicial' %}">Administrador</a>
+    <a href="{% url 'professor_inicial' %}">Professor</a>
+    <a href="{% url 'aluno_inicial' %}">Aluno</a>
+</nav>
+
+<section>
+    <!-- Conteúdo da página vai aqui -->
+    <div class="imagem-centralizada">
+        <img src="{% static 'my_app\\images\\coespe.jpeg' %}" alt="COESPE/UFRN">
+    </div>
+    <p>Bem-vindo à página inicial! Escolha uma das abas acima.</p>
+</section>
+
+<footer>
+    <p>GERENCIADOR DE MATRICULAS DE ESPORTES</p>
+</footer>
+
+</body>
+</html>

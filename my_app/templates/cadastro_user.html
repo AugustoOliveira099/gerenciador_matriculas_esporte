@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">  
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuário | Cadastre-se</title>
-    
+    <title>Cadastre-se</title>
+    <!-- Adicione a folha de estilo abaixo -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -53,6 +53,11 @@
             color: #ff0000;
             margin-top: 10px;
         }
+
+        #loading-spinner {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -74,25 +79,27 @@
         <label for="senha">Senha:</label>
         <input type="password" id="senha" name="senha" required>
 
-        <button onclick="cadastrarUsuario()">Cadastrar Usuário</button>
+        <button type="button" onclick="cadastrarUsuario()">Cadastrar Usuário</button>
+
+        <!-- Elemento para mostrar o símbolo de carregamento -->
+        <div id="loading-spinner">Carregando...</div>
     </form>
 
     <script>
         function cadastrarUsuario() {
             console.log('Cadastrando usuário...');
-    
+
             const formulario = document.getElementById('formulario-usuario');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            // Mostra o símbolo de carregamento
+            loadingSpinner.style.display = 'block';
+
             const csrftoken = getCookie('csrftoken');
             const url = "http://127.0.0.1:8000/cadastro/";
-    
-            const dadosUsuario = {
-                nome: formulario.querySelector('#nome').value,
-                cpf: formulario.querySelector('#cpf').value.replace(/\D/g, ''),
-                email: formulario.querySelector('#email').value,
-                nascimento: formulario.querySelector('#nascimento').value,
-                senha: formulario.querySelector('#senha').value,
-            };
-    
+
+            // Restante do código para enviar o formulário...
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -111,7 +118,6 @@
             .then(data => {
                 console.log('Resposta:', data);
                 alert('Cadastro realizado com sucesso!');
-                window.location.href = "/aluno/"; // Redireciona para a página do aluno
             })
             .catch(error => {
                 console.error('Erro:', error.message);
@@ -119,7 +125,27 @@
                 errorMessageElement.className = 'error-message';
                 errorMessageElement.textContent = 'Erro ao cadastrar usuário. Verifique os dados e tente novamente.';
                 formulario.appendChild(errorMessageElement);
+            })
+            .finally(() => {
+                // Esconde o símbolo de carregamento após o término do processo
+                loadingSpinner.style.display = 'none';
             });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Verifique se o cookie começa com o nome desejado
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
     </script>
 </body>

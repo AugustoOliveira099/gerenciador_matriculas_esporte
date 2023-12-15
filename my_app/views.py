@@ -401,3 +401,9 @@ class ProfessorView(View):
         return redirect(self.template_name)
       except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+      
+class PaginaInicialView(View):
+    template_name = 'pagina_inicial.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
